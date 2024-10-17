@@ -111,7 +111,6 @@ function load_shop()
 										shop_marker = current_shop;
 										shop_marker_type = "supply";
 										shop_humanity_type = humanity_type;
-										updateShop();
 									else
 										outputChatBox("Dealer: You need to have atleast 5000 humanity in order to shop here.",200,55,0)
 									end
@@ -122,7 +121,6 @@ function load_shop()
 										shop_marker = current_shop;
 										shop_marker_type = "supply";
 										shop_humanity_type = humanity_type;
-										updateShop();
 									else
 										outputChatBox("Dealer: You need to have atleast -5000 humanity in order to shop here.",200,55,0)
 									end
@@ -132,7 +130,6 @@ function load_shop()
 									shop_marker = current_shop;
 									shop_marker_type = "supply";
 									shop_humanity_type = humanity_type;
-									updateShop();
 								end
 							end
 							
@@ -143,25 +140,11 @@ function load_shop()
 									if (getElementData(source,"humanity") >= 5000) then
 										guiSetVisible(shop_gui.window[1],false)
 										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										killErrorMessageTimer();
 									end
 								elseif (humanity_type == "bandit") then
 									if (getElementData(source,"humanity") <= -5000) then
 										guiSetVisible(shop_gui.window[1],false)
 										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										killErrorMessageTimer();
 									end
 								elseif (humanity_type == "blackmarket" or humanity_type == "normal") then
 									for i,v in pairs(shop_items) do
@@ -178,13 +161,6 @@ function load_shop()
 									
 									guiSetVisible(shop_gui.window[1],false)
 									showCursor(false)
-									if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-										removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-									end
-									shop_marker = nil;
-									shop_marker_type = nil;
-									shop_humanity_type = nil;
-									killErrorMessageTimer();
 								end
 							end
 						end)
@@ -331,15 +307,6 @@ addEventHandler("onClientGUIClick",resourceRoot,function()
 			if (guiGetVisible(shop_gui.window[1]) == true) then
 				guiSetVisible( shop_gui.window[1], false )
 				showCursor(false)
-				if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-					removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-				end
-				shop_marker = nil;
-				shop_marker_type = nil;
-				shop_humanity_type = nil;
-				vehicle_spawn_position = nil;
-				killErrorMessageTimer();
-
 			end
 		end
 	end
@@ -366,14 +333,14 @@ end)
 	shop_gui.tabpanel[1] = guiCreateTabPanel(10, 26, 450, 485, false, shop_gui.window[1])
 	
 	------------------------------
-	local gLW,gLH = guiGetSize(shop_gui.tabpanel[1],false)
-	local gLX,gLY = guiGetPosition(shop_gui.tabpanel[1],false)
-	shop_gui.gridlist[1] = guiCreateGridList(gLX, gLY + 24, gLW, gLH, false, shop_gui.window[1])
-	guiGridListAddColumn(shop_gui.gridlist[1], "", 0.6)
-	guiGridListAddColumn(shop_gui.gridlist[1], "Buy Price", 0.15)
-	guiGridListAddColumn(shop_gui.gridlist[1], "Sell Price", 0.15)
-	guiSetProperty(shop_gui.gridlist[1],"SortSettingEnabled","False")
-	guiSetProperty(shop_gui.gridlist[1], "AlwaysOnTop", "True")
+	-- local gLW,gLH = guiGetSize(shop_gui.tabpanel[1],false)
+	-- local gLX,gLY = guiGetPosition(shop_gui.tabpanel[1],false)
+	-- shop_gui.gridlist[1] = guiCreateGridList(gLX, gLY + 24, gLW, gLH, false, shop_gui.window[1])
+	-- guiGridListAddColumn(shop_gui.gridlist[1], "", 0.6)
+	-- guiGridListAddColumn(shop_gui.gridlist[1], "Buy Price", 0.15)
+	-- guiGridListAddColumn(shop_gui.gridlist[1], "Sell Price", 0.15)
+	-- guiSetProperty(shop_gui.gridlist[1],"SortSettingEnabled","False")
+	-- guiSetProperty(shop_gui.gridlist[1], "AlwaysOnTop", "True")
 
 
 	shop_gui.button[1] = guiCreateButton(480, 500, 60, 32, "BUY", false, shop_gui.window[1])
@@ -387,6 +354,23 @@ end)
 	guiLabelSetVerticalAlign(shop_gui.label[4], "center")
 
 
+
+
+	for category, items in pairs(shop_items["normal"]["supply"]) do
+        local tab = guiCreateTab(category, shop_gui.tabpanel[1])
+        local gridlist = guiCreateGridList(0, 0, 1, 1, true, tab)
+        guiGridListAddColumn(gridlist, "Item Name", 0.6)
+        guiGridListAddColumn(gridlist, "Buy Price", 0.15)
+        guiGridListAddColumn(gridlist, "Sell Price", 0.15)
+        
+        -- پر کردن گریدلیست‌ها با آیتم‌ها
+        for _, item in ipairs(items) do
+            local row = guiGridListAddRow(gridlist)
+            guiGridListSetItemText(gridlist, row, 1, item[1], false, false)
+            guiGridListSetItemText(gridlist, row, 2, tostring(item[3]), false, false)
+            guiGridListSetItemText(gridlist, row, 3, tostring(item[4]), false, false)
+        end
+    end
 
 
 
