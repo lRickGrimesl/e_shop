@@ -508,22 +508,22 @@ function sellItem()
 			else
 				guiSetText(shop_gui.label[4],"You don't have enough "..item..".")
 			end
+
 		elseif (shop_marker_type == "vehicle") then
-			local target = localPlayer;
-			local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
-			local id,engine,rotor,tires,tankparts,scrap,slots,fuel,buyprice,sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1],guiGridListGetSelectedItem(shop_gui.gridlist[1]),1))
-			local x,y,z,rx,ry,rz = unpack(vehicle_spawn_position)
-			guiLabelSetColor(shop_gui.label[4],255,0,0)
+			local target = localPlayer
+			local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]), 1)
+			local id, engine, rotor, tires, tankparts, scrap, slots, fuel, buyprice, sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]), 1))
+			local x, y, z, rx, ry, rz = unpack(vehicle_spawn_position)
+			guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
+			
 			if isPedInVehicle(localPlayer) then
 				if getElementModel(getPedOccupiedVehicle(localPlayer)) == id then
-					-- for i,v in ipairs(getElementsWithinColShape(vehicle_spawn_position_col[shop_marker],"vehicle")) do
-					-- 	guiSetText(shop_gui.label[4],"Vehicle spawn area is taken, clear it before buying vehicle.")
-					-- 	return
-					-- end
-					guiSetVisible(shop_gui.window[1],false)
+					guiSetVisible(shop_gui.window[1], false)
 					showCursor(false)
-					outputChatBox("You successfully sold "..vehicleName..".",0,255,0)
-					triggerServerEvent("MTAZeu:onClientSuccessSellsVehicle",localPlayer,target,currency_item,buyprice,sellprice,x,y,z,rx,ry,rz,id,engine,rotor,tires,tankparts,scrap,slots,fuel)
+					outputChatBox("You successfully sold " .. vehicleName .. ".", 0, 255, 0)
+					-- اضافه کردن تابع برای پاک کردن تب‌ها
+					closeShopPanel()
+					triggerServerEvent("MTAZeu:onClientSuccessSellsVehicle", localPlayer, target, currency_item, buyprice, sellprice, x, y, z, rx, ry, rz, id, engine, rotor, tires, tankparts, scrap, slots, fuel)
 				else
 					guiSetText(shop_gui.label[4], "You don't have that Vehicle")
 				end
@@ -531,6 +531,30 @@ function sellItem()
 				guiSetText(shop_gui.label[4], "You don't have any Vehicle")
 			end
 		end
+		
+		-- elseif (shop_marker_type == "vehicle") then
+		-- 	local target = localPlayer;
+		-- 	local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
+		-- 	local id,engine,rotor,tires,tankparts,scrap,slots,fuel,buyprice,sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1],guiGridListGetSelectedItem(shop_gui.gridlist[1]),1))
+		-- 	local x,y,z,rx,ry,rz = unpack(vehicle_spawn_position)
+		-- 	guiLabelSetColor(shop_gui.label[4],255,0,0)
+		-- 	if isPedInVehicle(localPlayer) then
+		-- 		if getElementModel(getPedOccupiedVehicle(localPlayer)) == id then
+		-- 			-- for i,v in ipairs(getElementsWithinColShape(vehicle_spawn_position_col[shop_marker],"vehicle")) do
+		-- 			-- 	guiSetText(shop_gui.label[4],"Vehicle spawn area is taken, clear it before buying vehicle.")
+		-- 			-- 	return
+		-- 			-- end
+		-- 			guiSetVisible(shop_gui.window[1],false)
+		-- 			showCursor(false)
+		-- 			outputChatBox("You successfully sold "..vehicleName..".",0,255,0)
+		-- 			triggerServerEvent("MTAZeu:onClientSuccessSellsVehicle",localPlayer,target,currency_item,buyprice,sellprice,x,y,z,rx,ry,rz,id,engine,rotor,tires,tankparts,scrap,slots,fuel)
+		-- 		else
+		-- 			guiSetText(shop_gui.label[4], "You don't have that Vehicle")
+		-- 		end
+		-- 	else
+		-- 		guiSetText(shop_gui.label[4], "You don't have any Vehicle")
+		-- 	end
+		-- end
 	end
 end
 
@@ -655,6 +679,9 @@ end)
 
 			
 			-- loads items from player choosed category
+			
+			
+			
 			function updateItems()
 				guiGridListClear(shop_gui.gridlist[1])
 				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
@@ -663,16 +690,16 @@ end)
 						if (i == shop_humanity_type) then
 							for i,v in pairs(v) do
 								if (i == shop_marker_type) then
-									if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
+									if v[category] then
 										for i,v in ipairs(v[category]) do
 											local row = guiGridListAddRow(shop_gui.gridlist[1])
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
+											local text1 = v[1] or "N/A" -- بررسی مقداردهی
+											local text2 = v[3] or "N/A" -- بررسی مقداردهی
+											local text3 = v[4] or "N/A" -- بررسی مقداردهی
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, text1, false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, text2, false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, text3, false, false)
 											guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
-											-- if (getElementData(localPlayer,v[1]) > 0) then
-											--     guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
-											-- end
 										end
 									else
 										outputChatBox("Error: Table for category is nil")
@@ -684,8 +711,47 @@ end)
 					removeEventHandler("onClientRender",root,updateItems)
 				end
 			end
+			
 			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
 			addEventHandler("onClientRender",root,updateItems)
+			
+			
+			
+			
+			
+			
+			
+			-- function updateItems()
+			-- 	guiGridListClear(shop_gui.gridlist[1])
+			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
+			-- 	if (category ~= "") then
+			-- 		for i,v in pairs(shop_items) do
+			-- 			if (i == shop_humanity_type) then
+			-- 				for i,v in pairs(v) do
+			-- 					if (i == shop_marker_type) then
+			-- 						if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
+			-- 							for i,v in ipairs(v[category]) do
+			-- 								local row = guiGridListAddRow(shop_gui.gridlist[1])
+			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
+			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
+			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
+			-- 								guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
+			-- 								-- if (getElementData(localPlayer,v[1]) > 0) then
+			-- 								--     guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
+			-- 								-- end
+			-- 							end
+			-- 						else
+			-- 							outputChatBox("Error: Table for category is nil")
+			-- 						end
+			-- 					end
+			-- 				end
+			-- 			end
+			-- 		end
+			-- 		removeEventHandler("onClientRender",root,updateItems)
+			-- 	end
+			-- end
+			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
+			-- addEventHandler("onClientRender",root,updateItems)
 			
 
 
@@ -740,7 +806,9 @@ end)
 			-- فایل shop_c.lua
 
 			function updateItems()
+				-- پاک کردن لیست قبلی
 				guiGridListClear(shop_gui.gridlist[1])
+				
 				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
 				if (category ~= "") then
 					for i,v in pairs(shop_items) do
@@ -765,12 +833,14 @@ end)
 							end
 						end
 					end
-					removeEventHandler("onClientRender",root,updateItems)
+					removeEventHandler("onClientRender", root, updateItems)
 				end
 			end
-
-			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
-			addEventHandler("onClientRender",root,updateItems)
+			
+			addEventHandler("onClientGUIClick", shop_gui.tabpanel[1], updateItems, false)
+			addEventHandler("onClientRender", root, updateItems)
+			
+			
 
 			
 
@@ -847,3 +917,13 @@ function dxDrawTextOnElement(TheElement,text,height,distance,R,G,B,alpha,size,fo
 		end
 	end
 end
+
+
+---test
+function closeShopPanel()
+    guiGridListClear(shop_gui.gridlist[1])
+    for i, tab in ipairs(guiGetChildren(shop_gui.tabpanel[1])) do
+        destroyElement(tab)
+    end
+end
+---test
