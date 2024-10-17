@@ -3,7 +3,7 @@
 	Contact Info: http://steamcommunity.com/id/rivor2
 ]]--
 
-local shop_gui = {tab = {},tabpanel = {},label = {},gridlist = {},window = {},button = {},memo = {}}
+local shop_gui = {tab = {},tabpanel = {},tab = {},label = {},gridlist = {},window = {},button = {},memo = {}}
 
 local shop = {
 	["sf_docks"] = {
@@ -62,16 +62,6 @@ local shop_items = {
 			--["Convert"] = {
 			--	{"zKill Bag",1,10},
 			--},
-		},
-		["vehicle"] = {
-			["Vehicles"] = {
-				-- example: {"name",id,engine,rotor,tires,tankparts,scrap,slots,fuel,price}
-				{"Armored Truck",528,1,0,4,1,1,50,80,500,400},
-				{"HMMWV",470,1,0,4,1,1,46,100,100,180},
-				{"Pickup Truck",422,1,0,4,1,1,25,80,80,60},
-				{"Motorcycle",468,1,0,2,1,1,10,30,60,40},
-				{"Old Bike",509,0,0,0,0,0,0,0,30,20},
-			},
 		},
 	},
 }
@@ -179,7 +169,7 @@ function load_shop()
 											for i,v in pairs(v) do
 												if (i == shop_marker_type) then
 													for i,v in pairs(v) do
-														guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
+														-- guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
 													end
 												end
 											end
@@ -198,196 +188,6 @@ function load_shop()
 								end
 							end
 						end)
-					elseif (i == "vehicle_dealer_marker") then
-						local vehicleShopMarker = createMarker(v[1],v[2],v[3]-1,"cylinder",1,0,255,0,69)
-						vehicle_spawn_position_col[current_shop] = createColSphere(v[4],v[5],v[6],4.5)
-						addEventHandler("onClientMarkerHit",vehicleShopMarker,function(player)
-							if (player == localPlayer) then
-								if (humanity_type == "hero") then
-									if (getElementData(source,"humanity") >= 5000) then
-										guiSetVisible(shop_gui.window[1],true)
-										showCursor(true)
-										shop_marker = current_shop;
-										shop_marker_type = "vehicle";
-										shop_humanity_type = humanity_type;
-										vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-										updateShop();
-									else
-										outputChatBox("Dealer: You need to have atleast 5000 humanity in order to shop here.",200,55,0)
-									end
-								elseif (humanity_type == "bandit") then
-									if (getElementData(source,"humanity") <= -5000) then
-										guiSetVisible(shop_gui.window[1],true)
-										showCursor(true)
-										shop_marker = current_shop;
-										shop_marker_type = "vehicle";
-										shop_humanity_type = humanity_type;
-										vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-										updateShop();
-									else
-										outputChatBox("Dealer: You need to have atleast -5000 humanity in order to shop here.",200,55,0)
-									end
-								elseif (humanity_type == "blackmarket" or humanity_type == "normal") then
-									guiSetVisible(shop_gui.window[1],true)
-									showCursor(true)
-									vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-									shop_marker = current_shop;
-									shop_marker_type = "vehicle";
-									shop_humanity_type = humanity_type;
-									updateShop();
-								end
-							end
-						end)
-						addEventHandler("onClientMarkerLeave",vehicleShopMarker,function(player)
-							if (player == localPlayer) then
-								if (humanity_type == "hero") then
-									if (getElementData(source,"humanity") >= 5000) then
-										guiSetVisible(shop_gui.window[1],false)
-										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										vehicle_spawn_position = nil;
-										killErrorMessageTimer();
-									end
-								elseif (humanity_type == "bandit") then
-									if (getElementData(source,"humanity") <= 0) then
-										guiSetVisible(shop_gui.window[1],false)
-										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										vehicle_spawn_position = nil;
-										killErrorMessageTimer();
-									end
-								elseif (humanity_type == "blackmarket" or humanity_type == "normal") then
-									for i,v in pairs(shop_items) do
-										if (i == humanity_type) then
-											for i,v in pairs(v) do
-												if (i == shop_marker_type) then
-													for i,v in pairs(v) do
-														guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
-													end
-												end
-											end
-										end
-									end
-									guiSetVisible(shop_gui.window[1],false)
-									showCursor(false)
-									if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-										removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-									end
-									shop_marker = nil;
-									shop_marker_type = nil;
-									shop_humanity_type = nil;
-									vehicle_spawn_position = nil;
-									killErrorMessageTimer();
-								end
-							end
-						end)
-						addEventHandler("onClientColShapeHit",vehicle_spawn_position_col[current_shop],function(player)
-							if (player == localPlayer and isPedInVehicle(localPlayer)) then
-								if (humanity_type == "hero") then
-									if (getElementData(source,"humanity") >= 5000) then
-										guiSetVisible(shop_gui.window[1],true)
-										showCursor(true)
-										shop_marker = current_shop;
-										shop_marker_type = "vehicle";
-										shop_humanity_type = humanity_type;
-										vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-										updateShop();
-									else
-										outputChatBox("Dealer: You need to have atleast 5000 humanity in order to shop here.",200,55,0)
-									end
-								elseif (humanity_type == "bandit") then
-									if (getElementData(source,"humanity") <= -5000) then
-										guiSetVisible(shop_gui.window[1],true)
-										showCursor(true)
-										shop_marker = current_shop;
-										shop_marker_type = "vehicle";
-										shop_humanity_type = humanity_type;
-										vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-										updateShop();
-									else
-										outputChatBox("Dealer: You need to have atleast -5000 humanity in order to shop here.",200,55,0)
-									end
-								elseif (humanity_type == "blackmarket" or humanity_type == "normal") then
-									guiSetVisible(shop_gui.window[1],true)
-									showCursor(true)
-									vehicle_spawn_position = {v[4],v[5],v[6],v[7],v[8],v[9]}
-									shop_marker = current_shop;
-									shop_marker_type = "vehicle";
-									shop_humanity_type = humanity_type;
-									updateShop();
-								end
-							end
-						end)
-						addEventHandler("onClientColShapeLeave",vehicle_spawn_position_col[current_shop],function(player)
-							if (player == localPlayer and isPedInVehicle(localPlayer)) then
-								if (humanity_type == "hero") then
-									if (getElementData(source,"humanity") >= 5000) then
-										guiSetVisible(shop_gui.window[1],false)
-										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										vehicle_spawn_position = nil;
-										killErrorMessageTimer();
-									end
-								elseif (humanity_type == "bandit") then
-									if (getElementData(source,"humanity") <= 0) then
-										guiSetVisible(shop_gui.window[1],false)
-										showCursor(false)
-										if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-											removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-										end
-										shop_marker = nil;
-										shop_marker_type = nil;
-										shop_humanity_type = nil;
-										vehicle_spawn_position = nil;
-										killErrorMessageTimer();
-									end
-								elseif (humanity_type == "blackmarket" or humanity_type == "normal") then
-									for i,v in pairs(shop_items) do
-										if (i == humanity_type) then
-											for i,v in pairs(v) do
-												if (i == shop_marker_type) then
-													for i,v in pairs(v) do
-														guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
-													end
-												end
-											end
-										end
-									end
-									guiSetVisible(shop_gui.window[1],false)
-									showCursor(false)
-									if (isEventHandlerAdded("onClientGUIClick",shop_gui.gridlist[1],updateItems)) then
-										removeEventHandler("onClientGUIClick",shop_gui.gridlist[1],updateItems)
-									end
-									shop_marker = nil;
-									shop_marker_type = nil;
-									shop_humanity_type = nil;
-									vehicle_spawn_position = nil;
-									killErrorMessageTimer();
-								end
-							end
-						end)
-						if (humanity_type == "hero") then
-							createBlip(v[4],v[5],v[6],31,1,0,0,0,255,0,0)
-						elseif (humanity_type == "bandit") then
-							createBlip(v[4],v[5],v[6],32,1,0,0,0,255,0,0)
-						elseif (humanity_type == "normal") then
-							createBlip(v[4],v[5],v[6],18,1,0,0,0,255,0,0)
-						end
 					end
 				end
 			end
@@ -448,24 +248,6 @@ function buyItem()
 			else
 				guiSetText(shop_gui.label[4],"You don't have enough zKills")
 			end
-		elseif (shop_marker_type == "vehicle") then
-			local target = localPlayer;
-			local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
-			local id,engine,rotor,tires,tankparts,scrap,slots,fuel,buyprice,sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1],guiGridListGetSelectedItem(shop_gui.gridlist[1]),1))
-			local x,y,z,rx,ry,rz = unpack(vehicle_spawn_position)
-			guiLabelSetColor(shop_gui.label[4],255,0,0)
-			if (getElementData(localPlayer,currency_item) >= buyprice) then
-				for i,v in ipairs(getElementsWithinColShape(vehicle_spawn_position_col[shop_marker],"vehicle")) do
-					guiSetText(shop_gui.label[4],"Vehicle spawn area is taken, clear it before buying vehicle.")
-					return
-				end
-				guiSetVisible(shop_gui.window[1],false)
-				showCursor(false)
-				outputChatBox("You successfully bought "..vehicleName..".",0,255,0)
-				triggerServerEvent("MTAZeu:onClientSuccessBuysVehicle",localPlayer,target,currency_item,buyprice,sellprice,x,y,z,rx,ry,rz,id,engine,rotor,tires,tankparts,scrap,slots,fuel)
-			else
-				guiSetText(shop_gui.label[4], "You don't have enough zKills")
-			end
 		end
 	end
 end
@@ -508,53 +290,7 @@ function sellItem()
 			else
 				guiSetText(shop_gui.label[4],"You don't have enough "..item..".")
 			end
-
-		elseif (shop_marker_type == "vehicle") then
-			local target = localPlayer
-			local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]), 1)
-			local id, engine, rotor, tires, tankparts, scrap, slots, fuel, buyprice, sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]), 1))
-			local x, y, z, rx, ry, rz = unpack(vehicle_spawn_position)
-			guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
-			
-			if isPedInVehicle(localPlayer) then
-				if getElementModel(getPedOccupiedVehicle(localPlayer)) == id then
-					guiSetVisible(shop_gui.window[1], false)
-					showCursor(false)
-					outputChatBox("You successfully sold " .. vehicleName .. ".", 0, 255, 0)
-					-- اضافه کردن تابع برای پاک کردن تب‌ها
-					closeShopPanel()
-					triggerServerEvent("MTAZeu:onClientSuccessSellsVehicle", localPlayer, target, currency_item, buyprice, sellprice, x, y, z, rx, ry, rz, id, engine, rotor, tires, tankparts, scrap, slots, fuel)
-				else
-					guiSetText(shop_gui.label[4], "You don't have that Vehicle")
-				end
-			else
-				guiSetText(shop_gui.label[4], "You don't have any Vehicle")
-			end
 		end
-		
-		-- elseif (shop_marker_type == "vehicle") then
-		-- 	local target = localPlayer;
-		-- 	local vehicleName = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
-		-- 	local id,engine,rotor,tires,tankparts,scrap,slots,fuel,buyprice,sellprice = unpack(guiGridListGetItemData(shop_gui.gridlist[1],guiGridListGetSelectedItem(shop_gui.gridlist[1]),1))
-		-- 	local x,y,z,rx,ry,rz = unpack(vehicle_spawn_position)
-		-- 	guiLabelSetColor(shop_gui.label[4],255,0,0)
-		-- 	if isPedInVehicle(localPlayer) then
-		-- 		if getElementModel(getPedOccupiedVehicle(localPlayer)) == id then
-		-- 			-- for i,v in ipairs(getElementsWithinColShape(vehicle_spawn_position_col[shop_marker],"vehicle")) do
-		-- 			-- 	guiSetText(shop_gui.label[4],"Vehicle spawn area is taken, clear it before buying vehicle.")
-		-- 			-- 	return
-		-- 			-- end
-		-- 			guiSetVisible(shop_gui.window[1],false)
-		-- 			showCursor(false)
-		-- 			outputChatBox("You successfully sold "..vehicleName..".",0,255,0)
-		-- 			triggerServerEvent("MTAZeu:onClientSuccessSellsVehicle",localPlayer,target,currency_item,buyprice,sellprice,x,y,z,rx,ry,rz,id,engine,rotor,tires,tankparts,scrap,slots,fuel)
-		-- 		else
-		-- 			guiSetText(shop_gui.label[4], "You don't have that Vehicle")
-		-- 		end
-		-- 	else
-		-- 		guiSetText(shop_gui.label[4], "You don't have any Vehicle")
-		-- 	end
-		-- end
 	end
 end
 
@@ -586,7 +322,7 @@ addEventHandler("onClientGUIClick",resourceRoot,function()
 					for i,v in pairs(v) do
 						if (i == shop_marker_type) then
 							for i,v in pairs(v) do
-								guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
+								-- guiDeleteTab(guiGetSelectedTab(shop_gui.tabpanel[1]),shop_gui.tabpanel[1])
 							end
 						end
 					end
@@ -652,227 +388,6 @@ end)
 
 
 
-	function updateShop()
-
-			
-		if (shop_marker_type == "supply") then
-			-- guiGridListClear(shop_gui.gridlist[1])
-			
-
-
-			guiGridListClear(shop_gui.gridlist[1])
-			guiGridListSetColumnTitle(shop_gui.gridlist[1],1,"Item")
-
-			
-			-- loads categories
-			for i,v in pairs(shop_items) do
-				if (i == shop_humanity_type) then
-					for i,v in pairs(v) do
-						if (i == shop_marker_type) then
-							for i,v in pairs(v) do
-								local row = guiCreateTab(i, shop_gui.tabpanel[1])
-							end
-						end
-					end
-				end
-			end
-
-			
-			-- loads items from player choosed category
-			
-			
-			
-			function updateItems()
-				guiGridListClear(shop_gui.gridlist[1])
-				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-				if (category ~= "") then
-					for i,v in pairs(shop_items) do
-						if (i == shop_humanity_type) then
-							for i,v in pairs(v) do
-								if (i == shop_marker_type) then
-									if v[category] then
-										for i,v in ipairs(v[category]) do
-											local row = guiGridListAddRow(shop_gui.gridlist[1])
-											local text1 = v[1] or "N/A" -- بررسی مقداردهی
-											local text2 = v[3] or "N/A" -- بررسی مقداردهی
-											local text3 = v[4] or "N/A" -- بررسی مقداردهی
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, text1, false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, text2, false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, text3, false, false)
-											guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
-										end
-									else
-										outputChatBox("Error: Table for category is nil")
-									end
-								end
-							end
-						end
-					end
-					removeEventHandler("onClientRender",root,updateItems)
-				end
-			end
-			
-			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
-			addEventHandler("onClientRender",root,updateItems)
-			
-			
-			
-			
-			
-			
-			
-			-- function updateItems()
-			-- 	guiGridListClear(shop_gui.gridlist[1])
-			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-			-- 	if (category ~= "") then
-			-- 		for i,v in pairs(shop_items) do
-			-- 			if (i == shop_humanity_type) then
-			-- 				for i,v in pairs(v) do
-			-- 					if (i == shop_marker_type) then
-			-- 						if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
-			-- 							for i,v in ipairs(v[category]) do
-			-- 								local row = guiGridListAddRow(shop_gui.gridlist[1])
-			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
-			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
-			-- 								guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
-			-- 								guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
-			-- 								-- if (getElementData(localPlayer,v[1]) > 0) then
-			-- 								--     guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
-			-- 								-- end
-			-- 							end
-			-- 						else
-			-- 							outputChatBox("Error: Table for category is nil")
-			-- 						end
-			-- 					end
-			-- 				end
-			-- 			end
-			-- 		end
-			-- 		removeEventHandler("onClientRender",root,updateItems)
-			-- 	end
-			-- end
-			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
-			-- addEventHandler("onClientRender",root,updateItems)
-			
-
-
-			-- function updateItems()
-			-- 	guiGridListClear(shop_gui.gridlist[1])
-			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-				
-			-- 	if (category ~= "") then
-			-- 		for i,v in pairs(shop_items) do
-			-- 			if (i == shop_humanity_type) then
-			-- 				for i,v in pairs(v) do
-			-- 					if (i == shop_marker_type) then
-			-- 						for i,v in ipairs(v[category]) do
-			-- 							local row = guiGridListAddRow(shop_gui.gridlist[1])
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
-			-- 							guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
-			-- 							-- if (getElementData(localPlayer,v[1]) > 0) then
-			-- 							-- 	guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
-			-- 							-- end
-			-- 						end
-			-- 					end
-			-- 				end	
-			-- 			end
-			-- 		end
-			-- 		removeEventHandler("onClientRender",root,updateItems)
-			-- 	end
-			-- end
-			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false) 
-			-- addEventHandler("onClientRender",root,updateItems)
-		elseif (shop_marker_type == "vehicle") then
-			guiGridListClear(shop_gui.gridlist[1])
-			guiGridListSetColumnTitle(shop_gui.gridlist[1],1,"Item")
-
-
-			-- loads categories
-			for i,v in pairs(shop_items) do
-				if (i == shop_humanity_type) then
-					for i,v in pairs(v) do
-						if (i == shop_marker_type) then
-							for i,v in pairs(v) do
-								local row = guiCreateTab(i, shop_gui.tabpanel[1])
-							end
-						end
-					end
-				end
-			end
-
-			-- loads items from player choosed category
-
-			-- فایل shop_c.lua
-
-			function updateItems()
-				-- پاک کردن لیست قبلی
-				guiGridListClear(shop_gui.gridlist[1])
-				
-				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-				if (category ~= "") then
-					for i,v in pairs(shop_items) do
-						if (i == shop_humanity_type) then
-							for i,v in pairs(v) do
-								if (i == shop_marker_type) then
-									if v[category] then
-										for i,v in ipairs(v[category]) do
-											local row = guiGridListAddRow(shop_gui.gridlist[1])
-											local text1 = v[1] or "N/A" -- بررسی مقداردهی
-											local text2 = v[10] or "N/A" -- بررسی مقداردهی
-											local text3 = v[11] or "N/A" -- بررسی مقداردهی
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, text1, false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, text2, false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, text3, false, false)
-											guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
-										end
-									else
-										outputChatBox("Error: Table for category is nil")
-									end
-								end
-							end
-						end
-					end
-					removeEventHandler("onClientRender", root, updateItems)
-				end
-			end
-			
-			addEventHandler("onClientGUIClick", shop_gui.tabpanel[1], updateItems, false)
-			addEventHandler("onClientRender", root, updateItems)
-			
-			
-
-			
-
-
-			-- function updateItems()
-			-- 	guiGridListClear(shop_gui.gridlist[1])
-			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-			-- 	if (category ~= "") then
-			-- 		for i,v in pairs(shop_items) do
-			-- 			if (i == shop_humanity_type) then
-			-- 				for i,v in pairs(v) do
-			-- 					if (i == shop_marker_type) then
-			-- 						for i,v in ipairs(v[category]) do
-			-- 							local row = guiGridListAddRow(shop_gui.gridlist[1])
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 1, v[1], false, false)
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[10], false, false)
-			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[11], false, false)
-			-- 							guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
-			-- 						end
-			-- 					end
-			-- 				end	
-			-- 			end
-			-- 		end
-			-- 		removeEventHandler("onClientRender",root,updateItems)
-			-- 	end
-			-- end
-			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
-			-- addEventHandler("onClientRender",root,updateItems)
-		end
-	end
--- end)
-
 
 
 
@@ -918,12 +433,3 @@ function dxDrawTextOnElement(TheElement,text,height,distance,R,G,B,alpha,size,fo
 	end
 end
 
-
----test
-function closeShopPanel()
-    guiGridListClear(shop_gui.gridlist[1])
-    for i, tab in ipairs(guiGetChildren(shop_gui.tabpanel[1])) do
-        destroyElement(tab)
-    end
-end
----test
