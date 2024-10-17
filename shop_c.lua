@@ -737,6 +737,8 @@ end)
 
 			-- loads items from player choosed category
 
+			-- فایل shop_c.lua
+
 			function updateItems()
 				guiGridListClear(shop_gui.gridlist[1])
 				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
@@ -745,12 +747,15 @@ end)
 						if (i == shop_humanity_type) then
 							for i,v in pairs(v) do
 								if (i == shop_marker_type) then
-									if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
+									if v[category] then
 										for i,v in ipairs(v[category]) do
 											local row = guiGridListAddRow(shop_gui.gridlist[1])
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, v[1], false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[10], false, false)
-											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[11], false, false)
+											local text1 = v[1] or "N/A" -- بررسی مقداردهی
+											local text2 = v[10] or "N/A" -- بررسی مقداردهی
+											local text3 = v[11] or "N/A" -- بررسی مقداردهی
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, text1, false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, text2, false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, text3, false, false)
 											guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
 										end
 									else
@@ -760,12 +765,13 @@ end)
 							end
 						end
 					end
-					removeEventHandler("onClientRender", root, updateItems)
+					removeEventHandler("onClientRender",root,updateItems)
 				end
 			end
-			
-			addEventHandler("onClientGUIClick", shop_gui.tabpanel[1], updateItems, false)
-			addEventHandler("onClientRender", root, updateItems)
+
+			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
+			addEventHandler("onClientRender",root,updateItems)
+
 			
 
 
