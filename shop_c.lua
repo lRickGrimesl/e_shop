@@ -207,25 +207,31 @@ function buyItem()
 		errorMessageTimer = setTimer(removeErrorMessage,275,15)
 	end
 
-	if (guiGridListGetSelectedItem(shop_gui.gridlist[1] ) == -1) then
-		guiSetText(shop_gui.label[4],"Please select an item")
-		guiLabelSetColor (shop_gui.label[4],255,0,0)
-	else
-		if (shop_marker_type == "supply") then
-			local target = localPlayer;
-			local item = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
-			local amount,buyprice,sellprice,itemdata = unpack(guiGridListGetItemData(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),2))
-			guiLabelSetColor(shop_gui.label[4],255,0,0)
+	local gridlistIndex = nil
+	for i, tab in pairs(shop_gui.tab) do
+		if tab == selectedTab then
+			gridlistIndex = i
+			break
+		end
+	end
 
+	if gridlistIndex then
+		if (shop_marker_type == "supply") then
+			local target = localPlayer
+			local item = guiGridListGetItemText(shop_gui.gridlist[gridlistIndex], guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex]), 1)
+			local amount, buyprice, sellprice, itemdata = unpack(guiGridListGetItemData(shop_gui.gridlist[gridlistIndex], guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex]), 2))
+			guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
+			
 			if (getElementData(localPlayer, currency_item) >= buyprice) then
-				guiSetText(shop_gui.label[4],"You successfully bought "..item..".")
-				guiLabelSetColor (shop_gui.label[4],0,149,14,255)
-				triggerServerEvent("MTAZeu:onClientSuccessBuysItem",localPlayer,target,itemdata,currency_item,amount,buyprice,sellprice)
+				guiSetText(shop_gui.label[4], "You successfully bought " .. item .. ".")
+				guiLabelSetColor(shop_gui.label[4], 0, 149, 14, 255)
+				triggerServerEvent("MTAZeu:onClientSuccessBuysItem", localPlayer, target, itemdata, currency_item, amount, buyprice, sellprice)
 			else
-				guiSetText(shop_gui.label[4],"You don't have enough zKills")
+				guiSetText(shop_gui.label[4], "You don't have enough zKills")
 			end
 		end
 	end
+
 end
 
 
