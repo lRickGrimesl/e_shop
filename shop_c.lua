@@ -77,6 +77,51 @@ local vehicle_spawn_position_col = {};
 --{[ DO NOT CHANGE THEESE ]}--
 
 
+
+function initializeShopGUI()
+    local screenW, screenH = guiGetScreenSize()
+    shop_gui.window[1] = guiCreateStaticImage((screenW - 639) / 2, (screenH - 546) / 2, 639, 546, ":e_login/window1.png", false)
+    guiSetAlpha(shop_gui.window[1], 0.95)
+    guiSetProperty(shop_gui.window[1], "Alpha", "0.950000")
+    guiSetVisible(shop_gui.window[1], false)
+
+    shop_gui.tabpanel[1] = guiCreateTabPanel(10, 26, 450, 485, false, shop_gui.window[1])
+    shop_gui.button[1] = guiCreateButton(480, 500, 60, 32, "BUY", false, shop_gui.window[1])
+    shop_gui.button[2] = guiCreateButton(555, 500, 60, 32, "SELL", false, shop_gui.window[1])
+    shop_gui.button[3] = guiCreateButton(591, 20, 25, 25, "X", false, shop_gui.window[1])
+    shop_gui.label[1] = guiCreateLabel(400, 20, 130, 15, " zKills: "..0, false, shop_gui.window[1])
+
+    shop_gui.label[4] = guiCreateLabel(187, 22, 349, 26, "", false, shop_gui.window[1])
+    guiLabelSetHorizontalAlign(shop_gui.label[4], "right", false)
+    guiLabelSetVerticalAlign(shop_gui.label[4], "center")
+
+    -- guiSetVisible(shop_gui.window[1], true)
+
+    -- bindKey("z", "down", function()
+    --     showCursor(not isCursorShowing())
+    -- end)
+
+    -- ایجاد تب‌ها و گریدلیست‌ها بر اساس shop_items
+    for category, items in pairs(shop_items["normal"]["supply"]) do
+        local tab = guiCreateTab(category, shop_gui.tabpanel[1])
+        local gridlist = guiCreateGridList(0, 0, 1, 1, true, tab)
+        guiGridListAddColumn(gridlist, "Item Name", 0.6)
+        guiGridListAddColumn(gridlist, "Buy Price", 0.15)
+        guiGridListAddColumn(gridlist, "Sell Price", 0.15)
+        shop_gui.tab[category] = tab
+        shop_gui.gridlist[category] = gridlist
+
+        -- پر کردن گریدلیست‌ها با آیتم‌ها
+        for _, item in ipairs(items) do
+            local row = guiGridListAddRow(gridlist)
+            guiGridListSetItemText(gridlist, row, 1, item[1], false, false)
+            guiGridListSetItemText(gridlist, row, 2, tostring(item[3]), false, false)
+            guiGridListSetItemText(gridlist, row, 3, tostring(item[4]), false, false)
+        end
+    end
+end
+
+
 function load_shop()
 	for i,v in pairs(shop) do
 		local current_shop = i;
@@ -189,92 +234,135 @@ end
 
 
 function buyItem()
-	if isTimer(errorMessageTimer) then
-		killTimer(errorMessageTimer)
-		guiSetText(shop_gui.label[4],"")
-		guiSetAlpha(shop_gui.label[4],1)
-		errorMessageTimer = setTimer(removeErrorMessage,275,15)
-	else
-		function removeErrorMessage()
-			if (guiGetAlpha(shop_gui.label[4]) > 0.30) then
-				guiSetAlpha(shop_gui.label[4],guiGetAlpha(shop_gui.label[4])-0.05)
-			elseif (guiGetAlpha(shop_gui.label[4]) < 0.30) then
-				if isTimer(errorMessageTimer) then killTimer(errorMessageTimer) end
-				guiSetText(shop_gui.label[4],"")
-				guiSetAlpha(shop_gui.label[4],1)
-			end
-		end
-		errorMessageTimer = setTimer(removeErrorMessage,275,15)
-	end
+    if isTimer(errorMessageTimer) then
+        killTimer(errorMessageTimer)
+        guiSetText(shop_gui.label[4], "")
+        guiSetAlpha(shop_gui.label[4], 1)
+    end
 
-	local gridlistIndex = nil
-	for i, tab in pairs(shop_gui.tab) do
-		if tab == selectedTab then
-			gridlistIndex = i
-			break
-		end
-	end
+    function removeErrorMessage()
+        if (guiGetAlpha(shop_gui.label[4]) > 0.30) then
+            guiSetAlpha(shop_gui.label[4], guiGetAlpha(shop_gui.label[4]) - 0.05)
+        elseif (guiGetAlpha(shop_gui.label[4]) < 0.30) then
+            if isTimer(errorMessageTimer) then killTimer(errorMessageTimer) end
+            guiSetText(shop_gui.label[4], "")
+            guiSetAlpha(shop_gui.label[4], 1)
+        end
+    end
 
-	if gridlistIndex then
-		if (shop_marker_type == "supply") then
-			local target = localPlayer
-			local item = guiGridListGetItemText(shop_gui.gridlist[gridlistIndex], guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex]), 1)
-			local amount, buyprice, sellprice, itemdata = unpack(guiGridListGetItemData(shop_gui.gridlist[gridlistIndex], guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex]), 2))
-			guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
-			
-			if (getElementData(localPlayer, currency_item) >= buyprice) then
-				guiSetText(shop_gui.label[4], "You successfully bought " .. item .. ".")
-				guiLabelSetColor(shop_gui.label[4], 0, 149, 14, 255)
-				triggerServerEvent("MTAZeu:onClientSuccessBuysItem", localPlayer, target, itemdata, currency_item, amount, buyprice, sellprice)
-			else
-				guiSetText(shop_gui.label[4], "You don't have enough zKills")
-			end
-		end
-	end
+    errorMessageTimer = setTimer(removeErrorMessage, 275, 15)
 
+    local selectedTab = guiGetSelectedTab(shop_gui.tabpanel[1])
+    local gridlistIndex = nil
+
+    -- پیدا کردن تب و گریدلیست مرتبط
+    for category, tab in pairs(shop_gui.tab) do
+        if tab == selectedTab then
+            gridlistIndex = category
+            break
+        end
+    end
+
+    if gridlistIndex and shop_gui.gridlist[gridlistIndex] then
+        if (shop_marker_type == "supply") then
+            local target = localPlayer
+            local selectedItem = guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex])
+
+            if selectedItem ~= -1 then
+                local item = guiGridListGetItemText(shop_gui.gridlist[gridlistIndex], selectedItem, 1)
+                local itemData = guiGridListGetItemData(shop_gui.gridlist[gridlistIndex], selectedItem, 2)
+
+                if itemData then
+                    local amount, buyprice, sellprice, itemdata = unpack(itemData)
+                    guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
+
+                    if (getElementData(localPlayer, currency_item) >= buyprice) then
+                        guiSetText(shop_gui.label[4], "You successfully bought " .. item .. ".")
+                        guiLabelSetColor(shop_gui.label[4], 0, 149, 14, 255)
+                        triggerServerEvent("MTAZeu:onClientSuccessBuysItem", localPlayer, target, itemdata, currency_item, amount, buyprice, sellprice)
+                    else
+                        guiSetText(shop_gui.label[4], "You don't have enough zKills")
+                    end
+                else
+                    outputChatBox("Error: No item data found")
+                end
+            else
+                outputChatBox("Error: No item selected")
+            end
+        end
+    else
+        outputChatBox("Error: No gridlist found")
+    end
 end
+
+addEventHandler("onClientResourceStart", resourceRoot, initializeShopGUI)
+addEventHandler("onClientGUIClick", shop_gui.button[1], buyItem, false)
+
 
 
 
 function sellItem()
-	if isTimer(errorMessageTimer) then
-		killTimer(errorMessageTimer)
-		guiSetText(shop_gui.label[4],"")
-		guiSetAlpha(shop_gui.label[4],1)
-		errorMessageTimer = setTimer(removeErrorMessage,275,15)
-	else
-		function removeErrorMessage()
-			if (guiGetAlpha(shop_gui.label[4]) > 0.30) then
-				guiSetAlpha(shop_gui.label[4],guiGetAlpha(shop_gui.label[4])-0.05)
-			elseif (guiGetAlpha(shop_gui.label[4]) < 0.30) then
-				if isTimer(errorMessageTimer) then killTimer(errorMessageTimer) end
-				guiSetText(shop_gui.label[4],"")
-				guiSetAlpha(shop_gui.label[4],1)
-			end
-		end
-		errorMessageTimer = setTimer(removeErrorMessage,275,15)
-	end
+    if isTimer(errorMessageTimer) then
+        killTimer(errorMessageTimer)
+        guiSetText(shop_gui.label[4], "")
+        guiSetAlpha(shop_gui.label[4], 1)
+    end
 
-	if (guiGridListGetSelectedItem(shop_gui.gridlist[1] ) == -1) then
-		guiSetText(shop_gui.label[4],"Please select an item")
-		guiLabelSetColor (shop_gui.label[4],255,0,0)
-	else
-		if (shop_marker_type == "supply") then
-			local target = localPlayer
-			local item = guiGridListGetItemText(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),1)
-			local amount,buyprice,sellprice,itemdata = unpack(guiGridListGetItemData(shop_gui.gridlist[1], guiGridListGetSelectedItem(shop_gui.gridlist[1]),2))
-			guiLabelSetColor(shop_gui.label[4],255,0,0)
+    function removeErrorMessage()
+        if (guiGetAlpha(shop_gui.label[4]) > 0.30) then
+            guiSetAlpha(shop_gui.label[4], guiGetAlpha(shop_gui.label[4]) - 0.05)
+        elseif (guiGetAlpha(shop_gui.label[4]) < 0.30) then
+            if isTimer(errorMessageTimer) then killTimer(errorMessageTimer) end
+            guiSetText(shop_gui.label[4], "")
+            guiSetAlpha(shop_gui.label[4], 1)
+        end
+    end
 
-			if (getElementData(localPlayer, itemdata) > 0) then
-				guiSetText(shop_gui.label[4],"You successfully sold "..item..".")
-				guiLabelSetColor (shop_gui.label[4],0,149,14,255)
-				triggerServerEvent("MTAZeu:onClientSuccessSellsItem",localPlayer,target,itemdata,currency_item,amount,buyprice,sellprice)
-			else
-				guiSetText(shop_gui.label[4],"You don't have enough "..item..".")
-			end
-		end
-	end
+    errorMessageTimer = setTimer(removeErrorMessage, 275, 15)
+
+    local selectedTab = guiGetSelectedTab(shop_gui.tabpanel[1])
+    local gridlistIndex = nil
+
+    -- پیدا کردن تب و گریدلیست مرتبط
+    for i, tab in pairs(shop_gui.tab) do
+        if tab == selectedTab then
+            gridlistIndex = i
+            break
+        end
+    end
+
+    if gridlistIndex and shop_gui.gridlist[gridlistIndex] then
+        if (shop_marker_type == "supply") then
+            local target = localPlayer
+            local selectedItem = guiGridListGetSelectedItem(shop_gui.gridlist[gridlistIndex])
+
+            if selectedItem ~= -1 then
+                local item = guiGridListGetItemText(shop_gui.gridlist[gridlistIndex], selectedItem, 1)
+                local itemData = guiGridListGetItemData(shop_gui.gridlist[gridlistIndex], selectedItem, 2)
+
+                if itemData then
+                    local amount, buyprice, sellprice, itemdata = unpack(itemData)
+                    guiLabelSetColor(shop_gui.label[4], 255, 0, 0)
+
+                    if (getElementData(localPlayer, itemdata) > 0) then
+                        guiSetText(shop_gui.label[4], "You successfully sold " .. item .. ".")
+                        guiLabelSetColor(shop_gui.label[4], 0, 149, 14, 255)
+                        triggerServerEvent("MTAZeu:onClientSuccessSellsItem", localPlayer, target, itemdata, currency_item, amount, buyprice, sellprice)
+                    else
+                        guiSetText(shop_gui.label[4], "You don't have enough " .. item .. ".")
+                    end
+                else
+                    outputChatBox("Error: No item data found")
+                end
+            else
+                outputChatBox("Error: No item selected")
+            end
+        end
+    else
+        outputChatBox("Error: No gridlist found")
+    end
 end
+
 
 
 
@@ -328,55 +416,6 @@ end)
 
 
 
--- addEventHandler("onClientResourceStart",resourceRoot,function()
-
-	local screenW, screenH = guiGetScreenSize()
-	shop_gui.window[1] = guiCreateStaticImage((screenW - 639) / 2, (screenH - 546) / 2, 639, 546, ":e_login/window1.png", false)
-	guiSetAlpha(shop_gui.window[1], 0.95)
-	guiSetProperty(shop_gui.window[1], "Alpha", "0.950000")
-	guiSetVisible(shop_gui.window[1],false)
-
-	shop_gui.tabpanel[1] = guiCreateTabPanel(10, 26, 450, 485, false, shop_gui.window[1])
-	
-	------------------------------
-	-- local gLW,gLH = guiGetSize(shop_gui.tabpanel[1],false)
-	-- local gLX,gLY = guiGetPosition(shop_gui.tabpanel[1],false)
-	-- shop_gui.gridlist[1] = guiCreateGridList(gLX, gLY + 24, gLW, gLH, false, shop_gui.window[1])
-	-- guiGridListAddColumn(shop_gui.gridlist[1], "", 0.6)
-	-- guiGridListAddColumn(shop_gui.gridlist[1], "Buy Price", 0.15)
-	-- guiGridListAddColumn(shop_gui.gridlist[1], "Sell Price", 0.15)
-	-- guiSetProperty(shop_gui.gridlist[1],"SortSettingEnabled","False")
-	-- guiSetProperty(shop_gui.gridlist[1], "AlwaysOnTop", "True")
-
-
-	shop_gui.button[1] = guiCreateButton(480, 500, 60, 32, "BUY", false, shop_gui.window[1])
-	shop_gui.button[2] = guiCreateButton(555, 500, 60, 32, "SELL", false, shop_gui.window[1])
-	shop_gui.button[3] = guiCreateButton(591, 20, 25, 25, "X", false, shop_gui.window[1])
-	shop_gui.label[1] = guiCreateLabel(400, 20, 130, 15, " zKills: "..getElementData(localPlayer, currency_item), false, shop_gui.window[1])
-
-	-----------------------------
-	shop_gui.label[4] = guiCreateLabel(187, 22, 349, 26, "", false, shop_gui.window[1])
-	guiLabelSetHorizontalAlign(shop_gui.label[4], "right", false)
-	guiLabelSetVerticalAlign(shop_gui.label[4], "center")
-
-
-
-
-	for category, items in pairs(shop_items["normal"]["supply"]) do
-        local tab = guiCreateTab(category, shop_gui.tabpanel[1])
-        local gridlist = guiCreateGridList(0, 0, 1, 1, true, tab)
-        guiGridListAddColumn(gridlist, "Item Name", 0.6)
-        guiGridListAddColumn(gridlist, "Buy Price", 0.15)
-        guiGridListAddColumn(gridlist, "Sell Price", 0.15)
-        
-        -- پر کردن گریدلیست‌ها با آیتم‌ها
-        for _, item in ipairs(items) do
-            local row = guiGridListAddRow(gridlist)
-            guiGridListSetItemText(gridlist, row, 1, item[1], false, false)
-            guiGridListSetItemText(gridlist, row, 2, tostring(item[3]), false, false)
-            guiGridListSetItemText(gridlist, row, 3, tostring(item[4]), false, false)
-        end
-    end
 
 
 
