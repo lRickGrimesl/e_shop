@@ -658,31 +658,65 @@ end)
 			function updateItems()
 				guiGridListClear(shop_gui.gridlist[1])
 				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
-				
 				if (category ~= "") then
 					for i,v in pairs(shop_items) do
 						if (i == shop_humanity_type) then
 							for i,v in pairs(v) do
 								if (i == shop_marker_type) then
-									for i,v in ipairs(v[category]) do
-										local row = guiGridListAddRow(shop_gui.gridlist[1])
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
-										guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
-										-- if (getElementData(localPlayer,v[1]) > 0) then
-										-- 	guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
-										-- end
+									if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
+										for i,v in ipairs(v[category]) do
+											local row = guiGridListAddRow(shop_gui.gridlist[1])
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
+											guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
+											-- if (getElementData(localPlayer,v[1]) > 0) then
+											--     guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
+											-- end
+										end
+									else
+										outputChatBox("Error: Table for category is nil")
 									end
 								end
-							end	
+							end
 						end
 					end
 					removeEventHandler("onClientRender",root,updateItems)
 				end
 			end
-			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false) 
+			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
 			addEventHandler("onClientRender",root,updateItems)
+			
+
+
+			-- function updateItems()
+			-- 	guiGridListClear(shop_gui.gridlist[1])
+			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
+				
+			-- 	if (category ~= "") then
+			-- 		for i,v in pairs(shop_items) do
+			-- 			if (i == shop_humanity_type) then
+			-- 				for i,v in pairs(v) do
+			-- 					if (i == shop_marker_type) then
+			-- 						for i,v in ipairs(v[category]) do
+			-- 							local row = guiGridListAddRow(shop_gui.gridlist[1])
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 1, exports.dayzepoch:getLanguageTextClient(v[1]), false, false)
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[3], false, false)
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[4], false, false)
+			-- 							guiGridListSetItemData(shop_gui.gridlist[1], row, 2, {v[2],v[3],v[4],v[1]})
+			-- 							-- if (getElementData(localPlayer,v[1]) > 0) then
+			-- 							-- 	guiGridListSetItemColor(shop_gui.gridlist[1],row,1,0,255,0)
+			-- 							-- end
+			-- 						end
+			-- 					end
+			-- 				end	
+			-- 			end
+			-- 		end
+			-- 		removeEventHandler("onClientRender",root,updateItems)
+			-- 	end
+			-- end
+			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false) 
+			-- addEventHandler("onClientRender",root,updateItems)
 		elseif (shop_marker_type == "vehicle") then
 			guiGridListClear(shop_gui.gridlist[1])
 			guiGridListSetColumnTitle(shop_gui.gridlist[1],1,"Item")
@@ -702,6 +736,7 @@ end)
 			end
 
 			-- loads items from player choosed category
+
 			function updateItems()
 				guiGridListClear(shop_gui.gridlist[1])
 				local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
@@ -710,22 +745,54 @@ end)
 						if (i == shop_humanity_type) then
 							for i,v in pairs(v) do
 								if (i == shop_marker_type) then
-									for i,v in ipairs(v[category]) do
-										local row = guiGridListAddRow(shop_gui.gridlist[1])
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 1, v[1], false, false)
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[10], false, false)
-										guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[11], false, false)
-										guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
+									if v[category] then -- اضافه کردن بررسی برای اطمینان از مقداردهی جدول
+										for i,v in ipairs(v[category]) do
+											local row = guiGridListAddRow(shop_gui.gridlist[1])
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 1, v[1], false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[10], false, false)
+											guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[11], false, false)
+											guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
+										end
+									else
+										outputChatBox("Error: Table for category is nil")
 									end
 								end
-							end	
+							end
 						end
 					end
-					removeEventHandler("onClientRender",root,updateItems)
+					removeEventHandler("onClientRender", root, updateItems)
 				end
 			end
-			addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
-			addEventHandler("onClientRender",root,updateItems)
+			
+			addEventHandler("onClientGUIClick", shop_gui.tabpanel[1], updateItems, false)
+			addEventHandler("onClientRender", root, updateItems)
+			
+
+
+			-- function updateItems()
+			-- 	guiGridListClear(shop_gui.gridlist[1])
+			-- 	local category = guiGetText(guiGetSelectedTab(shop_gui.tabpanel[1]))
+			-- 	if (category ~= "") then
+			-- 		for i,v in pairs(shop_items) do
+			-- 			if (i == shop_humanity_type) then
+			-- 				for i,v in pairs(v) do
+			-- 					if (i == shop_marker_type) then
+			-- 						for i,v in ipairs(v[category]) do
+			-- 							local row = guiGridListAddRow(shop_gui.gridlist[1])
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 1, v[1], false, false)
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 2, v[10], false, false)
+			-- 							guiGridListSetItemText(shop_gui.gridlist[1], row, 3, v[11], false, false)
+			-- 							guiGridListSetItemData(shop_gui.gridlist[1], row, 1, {v[2],v[3],v[4],v[5],v[6],v[7],v[8],v[9],v[10],v[11]})
+			-- 						end
+			-- 					end
+			-- 				end	
+			-- 			end
+			-- 		end
+			-- 		removeEventHandler("onClientRender",root,updateItems)
+			-- 	end
+			-- end
+			-- addEventHandler("onClientGUIClick",shop_gui.tabpanel[1],updateItems,false)
+			-- addEventHandler("onClientRender",root,updateItems)
 		end
 	end
 -- end)
